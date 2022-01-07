@@ -1,3 +1,4 @@
+_pycache_/*
 rs/*
 server/*
 !rs/keylogger.py
