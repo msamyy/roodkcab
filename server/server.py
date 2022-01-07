@@ -176,7 +176,7 @@ def server():
     global target
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    s.bind(("0.0.0.0", 9001))
+    s.bind(("0.0.0.0", 9001)) # ngrok tcp 9001
     s.listen(5)
     print("Listening for Incoming connections on port 9001")
     target, ip = s.accept()

