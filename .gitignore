@@ -1,0 +1,6 @@
+rs/*
+server/*
+!rs/keylogger.py
+!rs/reverseShell.py
+
+!server/server.py
