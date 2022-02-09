@@ -123,7 +123,8 @@ def shell():
                     keylog             ==> Start keylog program
                     dump_keylog        ==> Get the keylog file
                     persistance        ==> Make the backdoot persistant
-                    check              ==> check for root privileges 
+                    check              ==> Check for root privileges 
+                    wallpaper <path>   ==> Change the wallpaper  
                     q                  ==> quit session
                     =================================================================\n'''
             print(options)
