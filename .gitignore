@@ -3,5 +3,6 @@ rs/*
 server/*
 !rs/keylogger.py
 !rs/reverseShell.py
+!rs/decoder.py
 
 !server/server.py
