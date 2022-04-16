@@ -1,6 +1,11 @@
 # Backdoor
 
-Creating a complete Backdoor using Python
+Creating a complete Backdoor using Python..
+Fonctionalities:
+  -Webcam streaming 
+  -Microphone recording 
+  -
+
 
 ## Installation
 
